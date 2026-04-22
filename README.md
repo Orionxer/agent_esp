@@ -17,11 +17,12 @@
 
 ### 下载项目
 ```sh
+git clone https://github.com/Orionxer/agent_esp
 ```
 
 ### 启动AI
 - codex 进入项目，或者能够识别 `AGENTS.md` 的 AI 均可以
-- 聊天框输入：`编译项目`，可以尝试进入 tmux 观察 AI 的执行结果
+- 聊天框输入：**编译项目**，可以尝试进入 tmux 观察 AI 的执行结果
 
 ## 编译对上下文窗口的占用
 Codex GPT5.4，上下文窗口大小 *258k*：完整编译一次大概花费 **20K**，占用上下文窗口 **8%** ，后续只要不是全量编译，编译一次占用会降低，大概在 **1%**
@@ -29,6 +30,12 @@ Codex GPT5.4，上下文窗口大小 *258k*：完整编译一次大概花费 **2
 - [x] 使用子智能体分担编译任务，减少主智能体的上下文窗口占用 ==>> 实测上下文窗口压缩的效果不明显，且**编译时间明显增加**，耗时接近2分钟，时间主要花在调度智能体上。
 
 ## ⚡ 直接获取AGENTS.md
+
+直接在项目根目录下执行以下命令获取 `AGENTS.md`，并根据实际情况进行适配性修改：
+
+```sh
+curl -O https://raw.githubusercontent.com/Orionxer/agent_esp/master/AGENTS.md
+```
 
 ## tmux监控
 由于AI Agent通过tmux执行命令并读取输出，因此在使用过程中，用户也可以直接在tmux中查看命令执行的过程和结果，甚至可以直接在tmux中执行一些命令来辅助排查问题。
@@ -63,3 +70,9 @@ tmux attach -t agent_esp
 
 
 ## 获取.gitignore
+
+直接在项目根目录下执行以下命令获取 `.gitignore`，并根据实际情况进行适配性修改：
+
+```sh
+curl -O https://raw.githubusercontent.com/Orionxer/agent_esp/master/.gitignore
+```
