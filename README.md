@@ -1,78 +1,114 @@
-# Agent for ESP IDF
+# ESP-IDF 新建组件
 
-> 以 ESP-IDF 最简单的 hello world 工程为例，演示 AI Agent 通过 `AGENTS.md` 自动对ESP工程的编译、烧录、监视，分析固件大小等功能。
-
-
+> 组件可以通过**命令行**或者**VSCode**插件两种方式**创建**，下面分别介绍两种方式的步骤
 ## 环境准备
 
-- 系统：WSL Linux
-- 软件：tmux
-- ESP-IDF 环境：v5.5.3
-- AI Agent: Codex, GPT5.4
-- 开发板: ESP32-C5
+- 系统：WSL Ubuntu
+- SDK: ESP-IDF **v5.5.3**
+- 设备：esp32c5
+## 直接验证
 
-## 运行项目
-
-在运行本项目之前，最好确保当前环境已经能够正常编译/烧录/监控 ESP-IDF 项目，尽可能排除不必要的环境问题干扰。尤其注意需要挂载好设备并提升读写权限。
-
-### 下载项目
+### 下载工程
 ```sh
-git clone https://github.com/Orionxer/agent_esp
+git clone https://github.com/Orionxer/hello_components
 ```
 
-### 启动AI
-- codex 进入项目，或者能够识别 `AGENTS.md` 的 AI 均可以
-- 聊天框输入：**编译项目**，可以尝试进入 tmux 观察 AI 的执行结果
+### 验证步骤
+- cd 进入工程
+- 激活 ESP-IDF 环境
+- 设置目标芯片类型
+- 编译烧录监控
 
-## 编译对上下文窗口的占用
-Codex GPT5.4，上下文窗口大小 *258k*：完整编译一次大概花费 **20K**，占用上下文窗口 **8%** ，后续只要不是全量编译，编译一次占用会降低，大概在 **1%**
+## 命令行新建组件
 
-- [x] 使用子智能体分担编译任务，减少主智能体的上下文窗口占用 ==>> 实测上下文窗口压缩的效果不明显，且**编译时间明显增加**，耗时接近2分钟，时间主要花在调度智能体上。
-
-## ⚡ 直接获取AGENTS.md
-
-直接在项目根目录下执行以下命令获取 `AGENTS.md`，并根据实际情况进行适配性修改：
-
+### 进入工作区
 ```sh
-curl -O https://raw.githubusercontent.com/Orionxer/agent_esp/master/AGENTS.md
+cd ~/esp/esp32c5
+```
+### 激活ESP-IDF环境
+```sh
+source ~/.espressif/tools/activate_idf_v5.5.3.sh
+```
+### 创建空工程
+```sh
+idf.py create-project hello_components
+```
+### 进入工程
+```sh
+cd hello_components
+```
+### 项目根目录下创建并进入组件目录
+```sh
+mkdir -p components && cd components
+```
+### idf.py创建组件
+```sh
+idf.py create-component my_component
+```
+### 回到项目根目录
+```sh
+cd ..
+```
+### 查看根目录结构
+```sh
+tree
+```
+### 根目录结构如下
+```sh
+.
+├── CMakeLists.txt
+├── components
+│   └── my_component
+│       ├── CMakeLists.txt
+│       ├── include
+│       │   └── my_component.h
+│       └── my_component.c
+└── main
+    ├── CMakeLists.txt
+    └── hello_components.c
 ```
 
-## tmux监控
-由于AI Agent通过tmux执行命令并读取输出，因此在使用过程中，用户也可以直接在tmux中查看命令执行的过程和结果，甚至可以直接在tmux中执行一些命令来辅助排查问题。
+## VSCode插件新建组件
 
-### 列出当前所有tmux session
-```sh
-tmux ls
+- **Ctrl + Shift + P** 打开命令面板
+- 输入 **ESP-IDF: Create New ESP-IDF Component**
+- 输入组件名称，例如 **hello_component**
+
+ 生成的结构目录与命令行新建组件相同
+
+## 组件加入编译
+
+### 组件实现任意打印功能
+`./components/my_component/my_component.c` 参考内容如下
+```c
+#include <stdio.h>
+#include "my_component.h"
+#include "esp_log.h"
+void func(void)
+{
+    ESP_LOGI("MyComponent", "Hello, this is a message from MyComponent!");
+}
 ```
-### 进入指定的tmux session
-```sh
-tmux attach -t agent_esp
+### 添加组件依赖
+`main/CMakeLists.txt` 参考内容如下
+```cmake
+idf_component_register(SRCS "hello_components.c"
+                    INCLUDE_DIRS "."
+                    REQUIRES my_component) # 强制要求先编译该组件
+```
+### 调用组件函数
+`main/hello_world_main.c` 参考内容如下
+```c
+#include "hello_component.h"
+
+void app_main(void)
+{
+    func(); // 调用组件函数
+}
 ```
 
-## AGENTS.md适配性修改
-
-> `AGENTS.md` 需要根据实际的硬件以及软件情况进行适配性修改
-
-### IDF版本适配
-当前使用的 ESP-IDF 版本是 **v5.5.3**
-
-### 目标设备
-当前使用的目标设备是 **ESP32-C5**, 修改 `AGENTS.md` 中的目标设备检查部分，确保正确设置目标设备为 `esp32c5`。
-
-### 系统兼容性
-当前使用的是 WSL Linux，设备端口部分采用 `usbipd`的方式进行挂载并提升读写权限。
-
-- [ ] 最好能提供一份 Mac 版本的 `AGENTS.md`
-
-### 烧录波特率
-当前使用的烧录波特率是 `6000000`，实际波特率受限于USB转串口芯片速率上限、USB线材质量等环境因素，实际可能需要调低
-
-
-
-## 获取.gitignore
-
-直接在项目根目录下执行以下命令获取 `.gitignore`，并根据实际情况进行适配性修改：
+## 编译烧录监控验证
 
 ```sh
-curl -O https://raw.githubusercontent.com/Orionxer/agent_esp/master/.gitignore
+idf.py -b 6000000 build flash && idf.py monitor
 ```
