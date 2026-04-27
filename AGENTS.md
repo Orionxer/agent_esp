@@ -3,6 +3,9 @@
 ## 核心约束 (Always Active)
 - **Tmux 管理**：优先复用现有 `tmux` 会话及已激活环境；仅在必要时新建。会话名默认取当前目录名（如 `agent_esp`）。
 - **环境激活**：需执行 IDF 命令前，先确保 `source ~/.espressif/tools/activate_idf_v5.5.3.sh` 已执行。
+- **IDF命令执行上下文强约束**：所有 `idf.py` 命令必须在 tmux 会话内执行；禁止在普通 shell 执行。
+- **禁止替代调用**：禁止使用 `python .../idf.py`、`$IDF_PYTHON_ENV_PATH/bin/python .../idf.py` 等方式替代 `idf.py`。
+- **失败处理优先级**：若 `idf.py` 在 tmux 内不可用，必须先修复环境（重新激活/检查 alias 与 PATH），未修复前不得继续构建；必须明确向用户报告“流程未合规，未执行构建”。
 - **串口互斥**：若 `idf.py monitor` 正在运行，先发送 `Ctrl+]` 退出再执行其他命令。
 - **禁止命令**：**严禁**执行 `idf.py fullclean`。
 - **LSP 禁用**：**不要**运行 LSP 诊断/检查、语言服务器验证或基于 IDE 的代码分析，除非用户明确请求。
