@@ -39,7 +39,7 @@ curl -O https://raw.githubusercontent.com/Orionxer/agent_esp/master/CLAUDE.md
 ```
 `AGENTS.md` 为软链接，clone 项目即可自动处理，或手动创建:
 ```sh
-ln -sf CLAUDE.md AGENTS.md
+ln -s CLAUDE.md AGENTS.md
 ```
 
 ## tmux监控
